@@ -12,6 +12,13 @@ from chinese_calendar import is_holiday
 from datetime import datetime
 
 
+def wait(t):
+    random_value = random.randint(1, t)
+    minute = random_value % 3600 / 60
+    second = random_value % 3600 % 60
+    print(f"将于{int(minute)}分{int(second)}秒后开始打卡")
+
+
 def send(msg):
     headers = {'Content-Type': 'application/json', "Charset": "UTF-8"}
     # 这里替换为复制的完整 webhook 地址
@@ -54,24 +61,19 @@ def sign():
     pyautogui.click(center_dk)
 
 
-def wait(t):
-    random_value = random.randint(1, t)
-    minute = random_value % 3600 / 60
-    second = random_value % 3600 % 60
-    print(f"将于{int(minute)}分{int(second)}秒后开始打卡")
-
-
 localtime = time.localtime(time.time())
-if is_holiday(datetime(localtime.tm_year, localtime.tm_mon, localtime.tm_mday)):
+holiday = is_holiday(datetime(localtime.tm_year, localtime.tm_mon, localtime.tm_mday))
+if holiday:
     send("今天放假")
-elif pyautogui.locateOnScreen('kq.png'):
-    wait(9)
-    Path = r'D:\Program Files\MuMu\emulator\nemu\EmulatorShell\NemuPlayer.exe'
-    os.startfile(Path)
-    sign()  # 调用打卡函数
-    if pyautogui.locateOnScreen('success.png'):
-        send("打卡成功")
+else:
+    # Path = r'D:\Program Files\MuMu\emulator\nemu\EmulatorShell\NemuPlayer.exe'
+    # os.startfile(Path)
+    if pyautogui.locateOnScreen('kq.png'):
+        wait(9)
+        sign()  # 调用打卡函数
+        if pyautogui.locateOnScreen('success.png'):
+            send("打卡成功")
+        else:
+            send("打开失败")
     else:
         send("打开失败")
-else:
-    send("打卡失败")
